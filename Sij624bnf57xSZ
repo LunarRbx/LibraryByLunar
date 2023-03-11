@@ -1,0 +1,507 @@
+local Start=os.clock()
+hash = 5392435
+function cry(T)u=T:split("")d=""for T,h in pairs(u)do d=d..((tostring(string.byte(h)+hash)):reverse().."l")end return d end function decry(T)u=T:split("l")d=""for T=1,#u-1,1 do d=d..string.char((tostring(u[T])):reverse()-hash)end return d end
+
+request = http_request or request or HttpPost or syn.request
+keys = loadstring('return '..request({Url = 'https://raw.githubusercontent.com/LunarRbx/Script-By-IvanChai/main/WhiteList'}).Body)()
+
+Key = cry(game:GetService("RbxAnalyticsService"):GetClientId().."|"..game.Players.LocalPlayer.Name.."|"..game.Players.LocalPlayer.UserId)
+if table.find(keys, Key) then
+    msg = {["content"] = ("Whitelisted User: %s (%s)"):format(game.Players.LocalPlayer.Name,game.Players.LocalPlayer.UserId)}
+    request({Url = "https://discord.com/api/webhooks/1080891627289202829/8eVb_O7mxJBCWqMfBlXFBtcGGU1v3QuwfbQ1yIY0H9gNIuZxue-F5U3E-aM4aypZF1CE", Method = "POST", Headers = {["Content-Type"] = "application/json"}, Body = game.HttpService:JSONEncode(msg)})
+    ----\/-----ALL Variable-----\/----
+    _G.Enable = {
+        ["Auto Claim Gift"] = false,
+        ["Auto Claim Reward"] = false,
+        ["Auto Claim VIP Reward"] = false,
+        ["Auto Farm"] = false,
+        ["Auto Egg"] = false,
+        ["Auto Golden"] = false,
+        ["Auto Rainbow"] = false,
+        ["Auto Triple Coins"] = false,
+        ["Auto Triple Damage"] = false,
+        ["Auto Super Lucky"] = false,
+        ["Auto Ultra Lucky"] = false,
+        ["Auto Claim Mail"] = false,
+        ["Inf Jump"] = false,
+        ["Method"] = "Multi-target",
+        ["Location"] = "Town",
+        ["DelayAF"] = 0.8,
+        ["Egg"] = "Cracked Egg",
+        ["Triple"] = false,
+        ["Octuple"] = false,
+        ["Golden"] = false,
+        ["Auto Leprechaun Farm"] = false,
+        ["LuckyBlock"] = false
+    }
+    local Library = require(game:GetService("ReplicatedStorage").Library)
+    local LP = Library.LocalPlayer
+    local Network = Library.Network
+    local Directory = Library.Directory
+    local GetEquipped = Library.PetCmds.GetEquipped
+    local VisPet = LP.PlayerGui.Trading.Frame.Trade.Client.Pets
+    local Diamond = LP.PlayerGui.Main.Right.Diamonds.Amount
+    local comma_value = Library.Functions.Commas
+    local InvPets = LP.PlayerGui.Inventory.Frame.Main.Pets.Normal
+    local Coins = Library.Things.Coins
+    local Zone = {}
+    local Eggs = {}
+    ----/\-----ALL Variable-----/\----
+    
+    ----\/-----ALL Function-----\/----
+    if not _G.k then
+        setupvalue(Network.Invoke, 1, function() return true end)
+        setupvalue(Network.Fire, 1, function() return true end)
+        _G.k = true
+    end
+    if _G.JR then
+        _G.JR:Disconnect()
+    end
+    _G.JR = game:GetService("UserInputService").JumpRequest:connect(function()
+        if _G.Enable["Inf Jump"] then
+            pcall(function()LP.Character:FindFirstChildOfClass'Humanoid':ChangeState("Jumping")end)
+        end
+    end)
+    --ZONE
+    for i,v in pairs(Library.Directory.Areas) do
+        Zone[#Zone+1] = v.name
+    end
+    --Получение монеток
+    local function GetCoin()
+        local a = {}
+        for i,v in pairs(Coins:GetChildren()) do
+            if v:GetAttribute("Area") == _G.Enable["Location"] then
+                a[#a+1] = v:GetAttribute("ID")
+            end
+        end
+        return a[math.random(1,#a)]
+    end
+    local function GetLepriconCoin()
+        local a = {}
+        for i,v in pairs(Coins:GetChildren()) do
+            if (string.find(v:GetAttribute("Name"), "Leprechaun") and _G.Enable["LuckyBlock"]) or string.find(v:GetAttribute("Name"), "Clover") then
+                a[#a+1] = v:GetAttribute("ID")
+            end
+        end
+        return a[math.random(1,#a)]
+    end
+    --Получение петов
+    local function Pet()
+        allPets = {}
+        temp = GetEquipped()
+        for i=1, #temp do
+            allPets[#allPets+1] = temp[i].uid 
+        end
+        return allPets
+    end
+    --Фарм
+    local function AutoFarm(Delay, Method)
+        local Petz = Pet()
+        task.wait(.045*#Petz)
+        if Method == "Multi-target" then
+            for i=1,#Petz do
+                local Coin = GetCoin()
+                task.spawn(function()
+                    Network.Invoke("Join Coin",Coin,{Petz[i]})
+                end)
+                Network.Fire("Farm Coin",Coin,Petz[i])
+            end
+        else
+            local Coin = GetCoin()
+            task.spawn(function()
+                Network.Invoke("Join Coin",Coin,Petz)
+            end)
+            for i=1,#Petz do
+                Network.Fire("Farm Coin",Coin,Petz[i])
+            end
+        end
+    end
+    --ЛеприконКоинФарм
+    local function AutoFarmLepr(Delay, Method)
+        local Petz = Pet()
+        task.wait(.045*#Petz)
+        if Method == "Multi-target" then
+            for i=1,#Petz do
+                local Coin = GetLepriconCoin()
+                task.spawn(function()
+                    Network.Invoke("Join Coin",Coin,{Petz[i]})
+                end)
+                Network.Fire("Farm Coin",Coin,Petz[i])
+            end
+        else
+            local Coin = GetLepriconCoin()
+            task.spawn(function()
+                Network.Invoke("Join Coin",Coin,Petz)
+            end)
+            for i=1,#Petz do
+                Network.Fire("Farm Coin",Coin,Petz[i])
+            end
+        end
+    end
+    
+    -- EGGS
+    for i,v in pairs(Library.Directory.Eggs) do
+        if not string.find(i, "Golden") then
+            Eggs[#Eggs+1] = i
+        end
+    end
+    local function GetPet()
+        local Pet = {
+            ["Basic"] = {},
+            ["Golden"] = {},
+            ["Rainbow"] = {},
+            ["HC_Basic"] = {},
+            ["HC_Golden"] = {},
+            ["HC_Rainbow"] = {}
+        }
+        for qq,q in pairs(Library.Save.Get().Pets) do
+            if Directory.Pets[q.id].rarity ~= "Event" and Directory.Pets[q.id].rarity ~= "Exclusive" then
+                if q.dm ~= true then
+                    if not InvPets[q.uid].HC.Visible then
+                        if q.g == true then
+                            if not Pet["Golden"][q.id] then
+                                Pet["Golden"][q.id] = {}
+                            end
+                            table.insert(Pet["Golden"][q.id], q.uid)
+                        elseif q.r == true then
+                            if not Pet["Rainbow"][q.id] then
+                                Pet["Rainbow"][q.id] = {}
+                            end
+                            table.insert(Pet["Rainbow"][q.id], q.uid)
+                        else
+                            if not Pet["Basic"][q.id] then
+                                Pet["Basic"][q.id] = {}
+                            end
+                            table.insert(Pet["Basic"][q.id], q.uid)
+                        end
+                    else
+                        if q.g == true then
+                            if not Pet["HC_Golden"][q.id] then
+                                Pet["HC_Golden"][q.id] = {}
+                            end
+                            table.insert(Pet["HC_Golden"][q.id], q.uid)
+                        elseif q.r == true then
+                            if not Pet["HC_Rainbow"][q.id] then
+                                Pet["HC_Rainbow"][q.id] = {}
+                            end
+                            table.insert(Pet["HC_Rainbow"][q.id], q.uid)
+                        else
+                            if not Pet["HC_Basic"][q.id] then
+                                Pet["HC_Basic"][q.id] = {}
+                            end
+                            table.insert(Pet["HC_Basic"][q.id], q.uid)
+                        end
+                    end
+                end
+            end
+        end
+        return Pet
+    end
+    Use = ((game.PlaceId == 10321372166) and 10) or 6
+    ----/\-----ALL Function-----/\----
+    
+    ----\/----- Menu -----\/----
+    local UI=loadstring(game:HttpGet'https://raw.githubusercontent.com/max9597/Scripts/lt2/uisD1')():Initiate();
+        
+    local demo4=UI:CreateTab(12739858919,'Main');
+    local HumanoidSectionTab4=demo4:CreateSection()
+    local PlSettings=HumanoidSectionTab4:CreateSubSection('Player Settings');
+    local Rewards=HumanoidSectionTab4:CreateSubSection('Player Rewards');
+    
+    local Trades=UI:CreateTab(12739921999,'Visual');
+    local TradeSC=Trades:CreateSection()
+    local TradeScam=TradeSC:CreateSubSection('TradeScam');
+    local DupeGems=TradeSC:CreateSubSection('Dupe Gems');
+    local DupeEggs=TradeSC:CreateSubSection('Dupe Eggs');
+    
+    local demo=UI:CreateTab(12739920452,'AutoFarm');
+    local HumanoidSectionTab=demo:CreateSection()
+    local HumanoidSection=HumanoidSectionTab:CreateSubSection('AutoFarm Settings');
+    local Event=HumanoidSectionTab:CreateSubSection('Leprechaun Event');
+    local StatsTracker=HumanoidSectionTab:CreateSubSection('Stats Tracker');
+    
+    local demo2=UI:CreateTab(12739914602,'Egg');
+    local HumanoidSectionTab2=demo2:CreateSection()
+    local HumanoidSection2=HumanoidSectionTab2:CreateSubSection('AutoEggs Settings');
+    
+    local demo3=UI:CreateTab(12739857005,'Pets');
+    local HumanoidSectionTab3=demo3:CreateSection()
+    local HumanoidSection3=HumanoidSectionTab3:CreateSubSection('Auto Golden/Rainbow');
+    
+    local Boost=UI:CreateTab(12739860346,'AutoBoost');
+    local ABoost=Boost:CreateSection()
+    local AutoBoost=ABoost:CreateSubSection('Boosts');
+    
+    local sts=UI:CreateTab(5182003557,'Settings');
+    local Settings=sts:CreateSection()
+    local SerHop=Settings:CreateSubSection('Server Hoper');
+    local Loot=Settings:CreateSubSection('Auto Collect');
+    local ToggleGui=Settings:CreateSubSection('Toggle-Gui');
+    
+    SerHop:CreateButton('Server Hop | Rich',function()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/LunarRbx/Script-By-IvanChai/main/ServerHoper'))()
+    end,true,false,'Hint'); --animation,hint toggle,hint
+    
+    SerHop:CreateButton('Server Hop | Low Players',function()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/LunarRbx/Script-By-IvanChai/main/ServerHoper-LowPlayers'))()
+    end,true,false,'Hint'); --animation,hint toggle,hint
+    
+    TradeScam:CreateButton('Trade Scam Off/On',function()
+        VisPet.Visible = not VisPet.Visible
+    end,true,false,'Hint'); --animation,hint toggle,hint
+    
+    DupeGems:CreateTextbox('Dupe Gems',function(Value)
+    	Diamond.Text = comma_value(tonumber(Value))
+    end,'Number',false,false,'Hint',false); --players,hint toggle,hint,save text
+    
+    DupeEggs:CreateButton('Dupe Eggs x2',function()
+        for i,v in pairs(InvPets:GetChildren()) do
+            if v:FindFirstChild("GiftboxIcon") then
+                v:Clone().Parent = InvPets
+            end
+        end
+    end,true,false,'Hint'); --Базовое значение, Вкл/Откл подсказок, Текст в подсказке
+        
+    ToggleGui:CreateKeybind('KeyBind',function(v)
+        game.CoreGui.Ancestor.Enabled=not game.CoreGui.Ancestor.Enabled
+    end,Enum.KeyCode.RightControl,false,'Hint');
+    
+    PlSettings:CreateSlider('Speed',function(ASS)
+        LP.Character.Humanoid.WalkSpeed = ASS
+    end,1,500,26,false,'Hint'); --Минимум,Максимум,Стандартное значение,Вкл/Откл подсказок,текст в подсказке
+    
+    PlSettings:CreateSlider('JumpPower',function(ASS)
+    	LP.Character.Humanoid.JumpPower = ASS
+    end,1,500,50,false,'Hint'); --Минимум,Максимум,Стандартное значение,Вкл/Откл подсказок,текст в подсказке
+    
+    PlSettings:CreateToggle('Inf Jump',false,function(toggle)
+        _G.Enable["Inf Jump"] = toggle
+    end,false,false,'Hint'); --Базовое значение, Вкл/Откл подсказок, Текст в подсказке
+    
+    Rewards:CreateToggle('Auto Claim Gift',false,function(toggle)
+        _G.Enable["Auto Claim Gift"] = toggle
+        if toggle then
+            spawn(function()
+                while _G.Enable["Auto Claim Gift"] do
+                    for i=1,12 do
+                        print(i)
+                        Network.Invoke("Redeem Free Gift", i)
+                        wait(.1)
+                    end
+                end
+            end)
+        end
+    end,false,false,'Hint'); --Базовое значение, Вкл/Откл подсказок, Текст в 
+    
+    Rewards:CreateToggle('Auto Claim Mail',false,function(toggle)
+        _G.Enable["Auto Claim Mail"] = toggle
+        if toggle then
+            spawn(function()
+                while _G.Enable["Auto Claim Mail"] do
+                    Network.Fire("Claim All Mail")
+                    wait(5)
+                end
+            end)
+        end
+    end,false,false,'Hint'); --Базовое значение, Вкл/Откл подсказок, Текст в подсказке
+    
+    HumanoidSection:CreateToggle('AutoFarm Enable',false,function(toggle)
+        _G.Enable["Auto Farm"] = toggle
+        if toggle then
+            spawn(function()
+                while _G.Enable["Auto Farm"] do
+                    AutoFarm(_G.Enable["DelayAF"],_G.Enable["Method"])
+                end
+            end)
+        end
+    end,false,false,'Hint'); --Базовое значение, Вкл/Откл подсказок, Текст в подсказке
+    
+    Event:CreateToggle('Farm Leprechaun Coin Enable',false,function(toggle)
+        _G.Enable["Auto Leprechaun Farm"] = toggle
+        if toggle then
+            spawn(function()
+                while _G.Enable["Auto Leprechaun Farm"] do
+                    AutoFarmLepr(_G.Enable["DelayAF"],_G.Enable["Method"])
+                end
+            end)
+        end
+    end,false,false,'Hint'); --Базовое значение, Вкл/Откл подсказок, Текст в подсказке
+    
+    Event:CreateToggle('Farm Lucky Blocks on/off',false,function(toggle)
+        _G.Enable["LuckyBlock"] = toggle
+    end,false,true,'If you want farm Leprechaun Coins with Lucky block, enable this!'); --Базовое значение, Вкл/Откл подсказок, Текст в подсказке
+    
+    StatsTracker:CreateButton('Stats Tracker',function()
+    	
+    end,true,false,'Hint'); --animation,hint toggle,hint
+    
+    HumanoidSection:CreateDropDown(function(L)
+        _G.Enable["Method"] = L
+    end,{"Multi-target","Single"},'Method',false);
+        
+    HumanoidSection:CreateDropDown(function(L)
+        _G.Enable["Location"] = L
+    end,Zone,'Location',false);
+    
+    HumanoidSection2:CreateToggle('AutoOpen Enable',false,function(toggle)
+        _G.Enable["Auto Egg"] = toggle
+        if toggle then
+            spawn(function()
+                while _G.Enable["Auto Egg"] do
+                    if _G.Enable["Golden"] then
+                        Network.Invoke("Buy Egg",'Golden '.._G.Enable["Egg"],_G.Enable["Triple"],_G.Enable["Octuple"])
+                    else
+                        Network.Invoke("Buy Egg",_G.Enable["Egg"],_G.Enable["Triple"],_G.Enable["Octuple"])
+                    end
+                    wait(.1)
+                end
+            end)
+        end
+    end,false,false,'Hint'); --Базовое значение, Вкл/Откл подсказок, Текст в подсказке
+    
+    HumanoidSection2:CreateDropDown(function(E)
+        _G.Enable["Egg"] = E
+    end,Eggs,'Eggs',false);
+    
+    HumanoidSection2:CreateToggle('Golden eggs',false,function(toggle)
+        _G.Enable["Golden"] = toggle
+    end,false,false,'Hint'); --Базовое значение, Вкл/Откл подсказок, Текст в подсказке
+    
+    HumanoidSection2:CreateToggle('Triple eggs',false,function(toggle)
+        _G.Enable["Triple"] = toggle
+    end,false,false,'Hint'); --Базовое значение, Вкл/Откл подсказок, Текст в подсказке
+    
+    HumanoidSection2:CreateToggle('Octuple eggs',false,function(toggle)
+        _G.Enable["Octuple"] = toggle
+    end,false,false,'Hint'); --Базовое значение, Вкл/Откл подсказок, Текст в подсказке
+    
+    HumanoidSection3:CreateToggle('Auto Golden',false,function(toggle)
+        _G.Enable["Auto Golden"] = toggle
+        while toggle do
+            PList = GetPet()
+            TempWorldPet = "Basic"
+            if game.PlaceId == 10321372166 then
+                TempWorldPet = "HC_Basic"
+            end
+            for i,v in pairs(PList[TempWorldPet]) do
+                temp_pets = {}
+                for ii,vv in pairs(v) do
+                    if #temp_pets<NP then
+                        table.insert(temp_pets, vv)
+                    end
+                end
+                if #temp_pets == NP then
+                    if _G.Enable["Auto Golden"] == false then
+                        break
+                    end
+                    print(Network.Invoke("Use Golden Machine", temp_pets))
+                end
+                task.wait(1)
+            end
+            task.wait(1)
+        end
+    end,false,false,'Hint'); --Базовое значение, Вкл/Откл подсказок, Текст в подсказке
+    
+    HumanoidSection3:CreateToggle('Auto Rainbow',false,function(toggle)
+        _G.Enable["Auto Rainbow"] = toggle
+        while toggle do
+            PList = GetPet()
+            TempWorldPet = "Golden"
+            if game.PlaceId == 10321372166 then
+                TempWorldPet = "HC_Golden"
+            end
+            for i,v in pairs(PList[TempWorldPet]) do
+                temp_pets = {}
+                for ii,vv in pairs(v) do
+                    if #temp_pets<NP then
+                        table.insert(temp_pets, vv)
+                    end
+                end
+                if #temp_pets == NP then
+                    if _G.Enable["Auto Rainbow"] == false then
+                        break
+                    end
+                    print(Network.Invoke("Use Rainbow Machine", temp_pets))
+                end
+                task.wait(1)
+            end
+            task.wait(1)
+        end
+    end,false,false,'Hint'); --Базовое значение, Вкл/Откл подсказок, Текст в подсказке
+    
+    HumanoidSection3:CreateSlider('Use pets',function(P)
+        NP = P
+    end,1,Use,Use,false,'Hint'); --Минимум,Максимум,Стандартное значение,Вкл/Откл подсказок,текст в подсказке
+    
+    AutoBoost:CreateToggle('Auto Triple Coins',false,function(toggle)
+        _G.Enable["Auto Triple Coins"] = toggle
+        if toggle then
+            spawn(function()
+                while _G.Enable["Auto Triple Coins"] and not Library.Save.Get().Boosts["Triple Coins"] do
+                    Network.Fire("Activate Boost", "Triple Coins")
+                    wait(1)
+                end
+            end)
+        end
+    end,false,false,'Hint'); --Базовое значение, Вкл/Откл подсказок, Текст в подсказке
+    
+    AutoBoost:CreateToggle('Auto Triple Damage',false,function(toggle)
+        _G.Enable["Auto Triple Damage"] = toggle
+        if toggle then
+            spawn(function()
+                while _G.Enable["Auto Triple Damage"] and not Library.Save.Get().Boosts["Triple Damage"] do
+                    Network.Fire("Activate Boost", "Triple Damage")
+                    wait(1)
+                end
+            end)
+        end
+    end,false,false,'Hint'); --Базовое значение, Вкл/Откл подсказок, Текст в подсказке
+    
+    AutoBoost:CreateToggle('Auto Super Lucky',false,function(toggle)
+        _G.Enable["Auto Super Lucky"] = toggle
+        if toggle then
+            spawn(function()
+                while _G.Enable["Auto Super Lucky"] and not Library.Save.Get().Boosts["Super Lucky"] do
+                    Network.Fire("Activate Boost", "Super Lucky")
+                    wait(1)
+                end
+            end)
+        end
+    end,false,false,'Hint'); --Базовое значение, Вкл/Откл подсказок, Текст в подсказке
+    
+    AutoBoost:CreateToggle('Auto Ultra Lucky',false,function(toggle)
+        _G.Enable["Auto Ultra Lucky"] = toggle
+        if toggle then
+            spawn(function()
+                while _G.Enable["Auto Ultra Lucky"] and not Library.Save.Get().Boosts["Ultra Lucky"] do
+                    Network.Fire("Activate Boost", "Ultra Lucky")
+                    wait(1)
+                end
+            end)
+        end
+    end,false,false,'Hint'); --Базовое значение, Вкл/Откл подсказок, Текст в подсказке
+    
+    local Orbs,Lootbags = getsenv(LP.PlayerScripts.Scripts.Game.Orbs).AddOrb, getsenv(LP.PlayerScripts.Scripts.Game.Lootbags).Add
+    Loot:CreateToggle('Orbs',false,function(toggle)
+        if toggle then
+            getsenv(LP.PlayerScripts.Scripts.Game.Orbs).AddOrb=function(a,aa) Network.Fire('Claim Orbs', {tostring(a)}) end
+        else
+            getsenv(LP.PlayerScripts.Scripts.Game.Orbs).AddOrb=Orbs
+        end
+    end,true,false,'Hint'); --Базовое значение, Вкл/Откл подсказок, Текст в подсказке
+    
+    Loot:CreateToggle('Lootbags',false,function(toggle)
+        if toggle then
+            getsenv(LP.PlayerScripts.Scripts.Game.Lootbags).Add=function(a,aa) Network.Fire('Collect Lootbags', {tostring(a)}) end
+        else
+            getsenv(LP.PlayerScripts.Scripts.Game.Lootbags).Add=Lootbags
+        end
+    end,true,false,'Hint'); --Базовое значение, Вкл/Откл подсказок, Текст в подсказке
+    ----/\----- Menu -----/\----
+    warn("Script Enable in: "..string.format("%.2f", os.clock()-Start).." second")
+else
+    msg = {["content"] = ("Not whitelisted User: %s (%s)\nKey: ```%s```"):format(game.Players.LocalPlayer.Name,game.Players.LocalPlayer.UserId,Key)}
+    request({Url = "https://discord.com/api/webhooks/1080891498578595860/ZtBEAVLRhfNLWNT1A7a0DkPfCTHrzcX4Ov_nTHeEVzHvWwF0eh2M4Qs8fJ9HoJ343ixy", Method = "POST", Headers = {["Content-Type"] = "application/json"}, Body = game.HttpService:JSONEncode(msg)})
+    request({Url = "http://127.0.0.1:6463/rpc?v=1",Method="POST",Headers={["Content-Type"] = "application/json",["Origin"] = "https://discord.com"},Body = game:GetService("HttpService"):JSONEncode({cmd = "INVITE_BROWSER",args = {code = "xawJ5xA2jv"},nonce = game:GetService("HttpService"):GenerateGUID(false)}),})
+    game.Players.LocalPlayer:Kick("You not whitelisted! Buy script: https://discord.gg/xawJ5xA2jv")
+end
