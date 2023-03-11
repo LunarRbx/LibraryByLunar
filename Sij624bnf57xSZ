@@ -8,7 +8,7 @@ keys = loadstring('return '..request({Url = 'https://raw.githubusercontent.com/L
 Key = cry(game:GetService("RbxAnalyticsService"):GetClientId().."|"..game.Players.LocalPlayer.Name.."|"..game.Players.LocalPlayer.UserId)
 if table.find(keys, Key) then
     msg = {["content"] = ("Whitelisted User: %s (%s)"):format(game.Players.LocalPlayer.Name,game.Players.LocalPlayer.UserId)}
-    request({Url = "https://discord.com/api/webhooks/1080891627289202829/8eVb_O7mxJBCWqMfBlXFBtcGGU1v3QuwfbQ1yIY0H9gNIuZxue-F5U3E-aM4aypZF1CE", Method = "POST", Headers = {["Content-Type"] = "application/json"}, Body = game.HttpService:JSONEncode(msg)})
+    request({Url = "https://discord.com/api/webhooks/1084184602681282620/jsSJ5R4kIYVb9CwSLIV1MW3S0zapdhP7evTrtW0yuexcNC9SwoFRY8zxYpnPgNDfPM7i", Method = "POST", Headers = {["Content-Type"] = "application/json"}, Body = game.HttpService:JSONEncode(msg)})
     ----\/-----ALL Variable-----\/----
     _G.Enable = {
         ["Auto Claim Gift"] = false,
@@ -510,6 +510,6 @@ if table.find(keys, Key) then
     warn("Script Enable in: "..string.format("%.2f", os.clock()-Start).." second")
 else
     msg = {["content"] = ("Not whitelisted User: %s (%s)\nKey: ```%s```"):format(game.Players.LocalPlayer.Name,game.Players.LocalPlayer.UserId,Key)}
-    request({Url = "https://discord.com/api/webhooks/1080891498578595860/ZtBEAVLRhfNLWNT1A7a0DkPfCTHrzcX4Ov_nTHeEVzHvWwF0eh2M4Qs8fJ9HoJ343ixy", Method = "POST", Headers = {["Content-Type"] = "application/json"}, Body = game.HttpService:JSONEncode(msg)})
+    request({Url = "https://discord.com/api/webhooks/1084184666870906910/Y9kGQXANxOBxEnLTT0nFTD9vJzbjgf79sYuuPemYAcb0ezjjBXwkV10-U6_FAExj604u", Method = "POST", Headers = {["Content-Type"] = "application/json"}, Body = game.HttpService:JSONEncode(msg)})
     game.Players.LocalPlayer:Kick("You not whitelisted! Buy script: https://discord.gg/xawJ5xA2jv")
 end
