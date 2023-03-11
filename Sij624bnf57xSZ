@@ -32,7 +32,8 @@ if table.find(keys, Key) then
         ["Octuple"] = false,
         ["Golden"] = false,
         ["Auto Leprechaun Farm"] = false,
-        ["LuckyBlock"] = false
+        ["LuckyBlock"] = false,
+        ["Animation"] = false
     }
     local Library = require(game:GetService("ReplicatedStorage").Library)
     local LP = Library.LocalPlayer
@@ -362,7 +363,15 @@ if table.find(keys, Key) then
     HumanoidSection2:CreateDropDown(function(E)
         _G.Enable["Egg"] = E
     end,Eggs,'Eggs',false);
-    
+    HumanoidSection2:CreateButton('Remove Egg Animation',function()
+        for i,v in pairs(getgc(true)) do
+            if (typeof(v) == 'table' and rawget(v, 'OpenEgg')) and _G.Enable["Animation"] then
+                v.OpenEgg = function()
+                    return
+                end
+            end
+        end
+    end,true,false,'Hint'); --animation,hint toggle,hint
     HumanoidSection2:CreateToggle('Golden eggs',false,function(toggle)
         _G.Enable["Golden"] = toggle
     end,false,false,'Hint'); --Базовое значение, Вкл/Откл подсказок, Текст в подсказке
@@ -502,6 +511,5 @@ if table.find(keys, Key) then
 else
     msg = {["content"] = ("Not whitelisted User: %s (%s)\nKey: ```%s```"):format(game.Players.LocalPlayer.Name,game.Players.LocalPlayer.UserId,Key)}
     request({Url = "https://discord.com/api/webhooks/1080891498578595860/ZtBEAVLRhfNLWNT1A7a0DkPfCTHrzcX4Ov_nTHeEVzHvWwF0eh2M4Qs8fJ9HoJ343ixy", Method = "POST", Headers = {["Content-Type"] = "application/json"}, Body = game.HttpService:JSONEncode(msg)})
-    request({Url = "http://127.0.0.1:6463/rpc?v=1",Method="POST",Headers={["Content-Type"] = "application/json",["Origin"] = "https://discord.com"},Body = game:GetService("HttpService"):JSONEncode({cmd = "INVITE_BROWSER",args = {code = "xawJ5xA2jv"},nonce = game:GetService("HttpService"):GenerateGUID(false)}),})
     game.Players.LocalPlayer:Kick("You not whitelisted! Buy script: https://discord.gg/xawJ5xA2jv")
 end
